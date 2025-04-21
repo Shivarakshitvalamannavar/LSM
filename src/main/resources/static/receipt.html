@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+    
+        h2 {
+            text-align: center;
+            color: #38bdf8;
+            margin-bottom: 30px;
+            text-shadow: 0 0 6px #0ea5e9;
+        }
+    
+        #receipt-details {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+            font-size: 1.2rem;
+        }
+    
+        p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+    
+        p strong {
+            color: #93c5fd;
+        }
+    
+        /* Add some responsive design */
+        @media (max-width: 600px) {
+            #receipt-details {
+                padding: 20px;
+            }
+    
+            h2 {
+                font-size: 1.5rem;
+            }
+    
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+    
+    <script>
+        function loadReceipt() {
+            // Retrieve the receipt from session storage
+            const receipt = JSON.parse(sessionStorage.getItem('receipt'));
+
+            if (!receipt) {
+                alert('No receipt found. Please try again.');
+                return;
+            }
+
+            // Populate the receipt details
+            document.getElementById('receipt-details').innerHTML = `
+                <h2>Receipt</h2>
+                <p><strong>Receipt ID:</strong> ${receipt.receiptId}</p>
+                <p><strong>Laptop ID:</strong> ${receipt.laptopId}</p>
+                <p><strong>Laptop Model:</strong> ${receipt.laptopModel}</p>
+                <p><strong>Price:</strong> $${receipt.price}</p>
+                <p><strong>Customer Name:</strong> ${receipt.customerName}</p>
+                <p><strong>Date:</strong> ${receipt.date}</p>
+                <p><strong>Payment Type:</strong>${receipt.paymentType}</p>
+            `;
+        }
+
+        // Call loadReceipt when the page loads
+        document.addEventListener('DOMContentLoaded', loadReceipt);
+    </script>
+</head>
+<body>
+    <div id="receipt-details">
+        <!-- Receipt details will be populated here -->
+    </div>
+</body>
+</html>

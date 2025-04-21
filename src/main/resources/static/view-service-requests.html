@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Service Requests</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+    
+        h1 {
+            text-align: center;
+            color: #fbbf24;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+    
+        table {
+            width: 90%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #1f2937;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+    
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #4b5563;
+        }
+    
+        th {
+            background-color: #fbbf24;
+            color: #fff;
+        }
+    
+        td {
+            background-color: #111827;
+            color: #e2e8f0;
+        }
+    
+        tr:nth-child(even) td {
+            background-color: #2d3748;
+        }
+    
+        tr:hover td {
+            background-color: #fbbf24;
+            color: #111827;
+        }
+    
+        select {
+            padding: 5px;
+            background-color: #2d3748;
+            color: #e2e8f0;
+            border: 1px solid #4b5563;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+    
+        select:hover {
+            background-color: #fbbf24;
+            color: #111827;
+        }
+    
+        option {
+            background-color: #111827;
+            color: #e2e8f0;
+        }
+    
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+    
+            table {
+                width: 95%;
+            }
+    
+            th, td {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+    
+    <script>
+        async function fetchServiceRequests() {
+            try {
+                const response = await fetch('/api/service-requests');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const requests = await response.json();
+                const tableBody = document.getElementById('requests-table-body');
+                tableBody.innerHTML = ''; // Clear existing rows
+                requests.forEach(request => {
+                    const row = `<tr>
+                        <td>${request.requestId}</td>
+                        <td>${request.customerName}</td>
+                        <td>${request.laptopModel}</td>
+                        <td>${request.problem}</td>
+                        <td>${request.status}</td>
+                        <td>
+                            <select onchange="updateRequestStatus('${request.requestId}', this.value)">
+                                <option value="RECEIVED" ${request.status === 'RECEIVED' ? 'selected' : ''}>Received</option>
+                                <option value="WORKING_ON" ${request.status === 'WORKING_ON' ? 'selected' : ''}>Working On</option>
+                                <option value="DONE" ${request.status === 'DONE' ? 'selected' : ''}>Done</option>
+                            </select>
+                        </td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Error fetching service requests:', error);
+                alert('Failed to fetch service requests. Please check the console for more details.');
+            }
+        }
+
+        async function updateRequestStatus(requestId, status) {
+            try {
+                if (status === 'DONE') {
+                    const deleteResponse = await fetch(`/api/service-requests/${requestId}`, {
+                        method: 'DELETE'
+                    });
+                    if (!deleteResponse.ok) {
+                        throw new Error(`HTTP error! status: ${deleteResponse.status}`);
+                    }
+                    alert('Service request marked as DONE and deleted.');
+                } else {
+                    const updateResponse = await fetch(`/api/service-requests/${requestId}?status=${status}`, {
+                        method: 'PUT'
+                    });
+                    if (!updateResponse.ok) {
+                        throw new Error(`HTTP error! status: ${updateResponse.status}`);
+                    }
+                    alert('Service request status updated.');
+                }
+                fetchServiceRequests(); // Refresh the table
+            } catch (error) {
+                console.error('Error updating service request status:', error);
+                alert('Failed to update service request status. Please check the console for more details.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchServiceRequests);
+    </script>
+</head>
+<body>
+    <h1>Service Requests</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Customer Name</th>
+                <th>Laptop Model</th>
+                <th>Problem</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="requests-table-body">
+            <!-- Rows will be populated dynamically -->
+        </tbody>
+    </table>
+</body>
+</html>

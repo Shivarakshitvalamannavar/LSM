@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Out of Stock Laptops</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+    
+        h1 {
+            text-align: center;
+            color: #fbbf24;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+    
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #1f2937;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+    
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #4b5563;
+        }
+    
+        th {
+            background-color: #fbbf24;
+            color: #fff;
+        }
+    
+        td {
+            background-color: #111827;
+            color: #e2e8f0;
+        }
+    
+        tr:nth-child(even) td {
+            background-color: #2d3748;
+        }
+    
+        tr:hover td {
+            background-color: #fbbf24;
+            color: #111827;
+        }
+    
+        button {
+            background-color: #38bdf8;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+    
+        button:hover {
+            background-color: #0ea5e9;
+        }
+    
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+    
+            table {
+                width: 95%;
+            }
+    
+            th, td {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+    
+    <script>
+        async function fetchOutOfStockLaptops() {
+            try {
+                const response = await fetch('/api/laptops/out-of-stock');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const laptops = await response.json();
+                const tableBody = document.getElementById('out-of-stock-table-body');
+                tableBody.innerHTML = ''; // Clear existing rows
+                laptops.forEach(laptop => {
+                    const row = `<tr>
+                        <td>${laptop.laptopId}</td>
+                        <td>${laptop.model}</td>
+                        <td>${laptop.status}</td>
+                        <td>${laptop.quantity}</td>
+                        <td>
+                            <button onclick="restockLaptop('${laptop.laptopId}')">Restock</button>
+                        </td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Error fetching out-of-stock laptops:', error);
+                alert('Failed to fetch out-of-stock laptops. Please check the console for more details.');
+            }
+        }
+
+        async function restockLaptop(laptopId) {
+            const quantity = prompt("Enter the quantity to restock:");
+            if (!quantity || isNaN(quantity) || quantity <= 0) {
+                alert("Invalid quantity. Please enter a positive number.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/laptops/restock/${laptopId}?quantity=${quantity}`, {
+                    method: 'PUT'
+                });
+
+                if (response.ok) {
+                    alert('Laptop restocked successfully!');
+                    fetchOutOfStockLaptops(); // Refresh the table
+                } else {
+                    const error = await response.json();
+                    alert(`Failed to restock laptop: ${error.message}`);
+                }
+            } catch (error) {
+                console.error('Error restocking laptop:', error);
+                alert('Failed to restock laptop. Please check the console for more details.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchOutOfStockLaptops);
+    </script>
+</head>
+<body>
+    <h1>Out of Stock Laptops</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Laptop ID</th>
+                <th>Model</th>
+                <th>Status</th>
+                <th>Quantity</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="out-of-stock-table-body">
+            <!-- Rows will be populated dynamically -->
+        </tbody>
+    </table>
+</body>
+</html>

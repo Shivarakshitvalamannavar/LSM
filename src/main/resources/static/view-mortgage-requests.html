@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Mortgage Requests</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+    
+        h1 {
+            text-align: center;
+            color: #38bdf8;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+    
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #1f2937;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+    
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #4b5563;
+        }
+    
+        th {
+            background-color: #38bdf8;
+            color: #fff;
+        }
+    
+        td {
+            background-color: #111827;
+            color: #e2e8f0;
+        }
+    
+        tr:nth-child(even) td {
+            background-color: #2d3748;
+        }
+    
+        tr:hover td {
+            background-color: #38bdf8;
+            color: #fff;
+        }
+    
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+    
+            table {
+                width: 95%;
+            }
+    
+            th, td {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+    
+    <script>
+        async function fetchMortgageRequests() {
+    const customerName = new URLSearchParams(window.location.search).get('customerName'); // Corrected variable name
+
+    try {
+        const response = await fetch(`/api/mortgage-requests/customer/${customerName}`); // Use the correct variable
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const requests = await response.json();
+        const tableBody = document.getElementById('mortgage-requests-table-body');
+        tableBody.innerHTML = ''; // Clear existing rows
+        requests.forEach(request => {
+            const row = `<tr>
+                <td>${request.laptopModel}</td>
+                <td>${request.yearsUsed}</td>
+                <td>${request.issues}</td>
+                <td>${request.price}</td>
+                <td>${request.status}</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+    } catch (error) {
+        console.error('Error fetching mortgage requests:', error);
+        alert('Failed to fetch mortgage requests. Please check the console for more details.');
+    }
+}
+
+        document.addEventListener('DOMContentLoaded', fetchMortgageRequests);
+    </script>
+</head>
+<body>
+    <h1>Your Mortgage Requests</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Laptop Model</th>
+                <th>Years Used</th>
+                <th>Issues</th>
+                <th>Price</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="mortgage-requests-table-body">
+            <!-- Rows will be populated dynamically -->
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Find My Device Requests</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+    
+        h1 {
+            text-align: center;
+            color: #38bdf8;
+            margin-bottom: 30px;
+            text-shadow: 0 0 6px #0ea5e9;
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #1e293b;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+    
+        thead {
+            background-color: #334155;
+        }
+    
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #475569;
+        }
+    
+        th {
+            color: #93c5fd;
+            font-size: 1.1rem;
+        }
+    
+        td {
+            color: #f1f5f9;
+        }
+    
+        tr:hover {
+            background-color: #273549;
+        }
+    
+        button {
+            padding: 8px 12px;
+            margin-right: 8px;
+            background-color: #0ea5e9;
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+    
+        button:hover {
+            background-color: #38bdf8;
+            transform: scale(1.05);
+        }
+    
+        @media (max-width: 600px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+    
+            th {
+                display: none;
+            }
+    
+            td {
+                position: relative;
+                padding-left: 50%;
+                border: none;
+            }
+    
+            td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 16px;
+                width: 45%;
+                white-space: nowrap;
+                font-weight: bold;
+                color: #94a3b8;
+            }
+        }
+    </style>
+    
+    <script>
+        async function fetchFindMyDeviceRequests() {
+            try {
+                const response = await fetch('/api/find-my-device');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const requests = await response.json();
+                const tableBody = document.getElementById('requests-table-body');
+                tableBody.innerHTML = ''; // Clear existing rows
+                requests.forEach(request => {
+                    const row = `<tr>
+                        <td>${request.customerName}</td>
+                        <td>${request.laptopModel}</td>
+                        <td>${request.status}</td>
+                        <td>
+                            <button onclick="updateRequestStatus('${request.requestId}', 'FOUND')">Mark as Found</button>
+                            <button onclick="updateRequestStatus('${request.requestId}', 'NOT_FOUND')">Mark as Not Found</button>
+                        </td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Error fetching requests:', error);
+                alert('Failed to fetch requests. Please check the console for more details.');
+            }
+        }
+
+        async function updateRequestStatus(requestId, status) {
+            try {
+                const response = await fetch(`/api/find-my-device/${requestId}?status=${status}`, {
+                    method: 'PUT'
+                });
+
+                if (response.ok) {
+                    alert(`Request status updated to ${status}.`);
+                    fetchFindMyDeviceRequests(); // Refresh the table
+                } else {
+                    const error = await response.json();
+                    alert(`Failed to update request: ${error.message}`);
+                }
+            } catch (error) {
+                console.error('Error updating request status:', error);
+                alert('Failed to update request status. Please check the console for more details.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchFindMyDeviceRequests);
+    </script>
+</head>
+<body>
+    <h1>Manage Find My Device Requests</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Customer Name</th>
+                <th>Laptop Model</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="requests-table-body">
+            <!-- Rows will be populated dynamically -->
+        </tbody>
+    </table>
+</body>
+</html>

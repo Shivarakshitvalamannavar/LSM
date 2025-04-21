@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Laptop</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+    
+        form {
+            background-color: #1e293b;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 500px;
+        }
+    
+        h1 {
+            text-align: center;
+            color: #38bdf8;
+            margin-bottom: 20px;
+            text-shadow: 0 0 8px #0ea5e9;
+        }
+    
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+    
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            background-color: #334155;
+            color: #f1f5f9;
+            font-size: 1rem;
+            outline: none;
+        }
+    
+        input:focus, select:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 5px #38bdf8;
+        }
+    
+        button {
+            margin-top: 25px;
+            width: 100%;
+            padding: 12px;
+            background-color: #0ea5e9;
+            border: none;
+            color: #0f172a;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+    
+        button:hover {
+            background-color: #38bdf8;
+            transform: scale(1.03);
+        }
+    </style>
+    
+</head>
+<body>
+    <h1>Add a New Laptop</h1>
+    <form action="/api/laptops/add" method="post">
+        <label for="model">Laptop Model:</label>
+        <input type="text" id="model" name="model" required>
+        <br><br>
+
+        <label for="status">Laptop Status:</label>
+        <select id="status" name="status" required>
+            <option value="AVAILABLE">Available</option>
+            <!-- <option value="SOLD">Sold</option>
+            <option value="UNDERSERVICE">Under Service</option>
+            <option value="REPORTEDLOST">Reported Lost</option> -->
+        </select>
+        <br><br>
+
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" name="quantity" min="1" required>
+        <br><br>
+
+        <button type="submit">Add Laptop</button>
+    </form>
+</body>
+</html>

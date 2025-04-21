@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+        }
+    
+        h1 {
+            color: #38bdf8;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #0ea5e9;
+        }
+    
+        #welcome-message {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #cbd5e1;
+        }
+    
+        ul {
+            list-style-type: none;
+            padding: 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    
+        li {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            margin: 10px 0;
+            padding: 15px;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+    
+        li:hover {
+            background-color: #0ea5e9;
+            transform: translateY(-3px);
+        }
+    
+        a {
+            color: #f1f5f9;
+            text-decoration: none;
+            font-weight: 600;
+            display: block;
+        }
+    
+        a:hover {
+            color: #0f172a;
+        }
+    </style>
+    
+    <script>
+        // Dynamically display links and welcome message based on the user's role and username
+        function displayLinks() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role');
+            const username = urlParams.get('username');
+
+            const linksContainer = document.getElementById('links-container');
+            const welcomeMessage = document.getElementById('welcome-message');
+
+            // Display the welcome message
+            welcomeMessage.textContent = `Welcome, ${username}!`;
+
+            linksContainer.innerHTML = ''; // Clear existing links
+
+            if (role === 'CUSTOMER') {
+                linksContainer.innerHTML = `
+                    <li><a href="/view-laptops.html?username=${username}">View Available Laptops</a></li>
+                    <li><a href="/log-service-request.html?username=${username}">Log a Service Request</a></li>
+                    <li><a href="/view-mortgage-requests.html?customerName=${username}">View Your Mortgage Requests</a></li>
+                    <li><a href="/mortgage-laptop.html?username=${username}">Make a Mortgage Request</a></li>
+                    <li><a href="/find-my-device.html?username=${username}">Find My Device </a></li>
+                    <li><a href="/view-find-my-device-requests.html?username=${username}">View Your Find My Device Requests</a></li>
+                `;
+            } else if (role === 'SERVICETECHNICIAN') {
+                linksContainer.innerHTML = `
+                    <li><a href="/view-service-requests.html">View Service Requests</a></li>
+                `;
+            } else if (role === 'VENDOR') {
+                linksContainer.innerHTML = `
+                    <li><a href="/add-laptop.html">Add a Laptop</a></li>
+                    <li><a href="/view-out-of-stock-laptops.html">View Out of Stock Laptops</a></li>
+                    <li><a href="/manage-mortgage-requests.html">Manage Mortgage Requests</a></li>
+                    <li><a href="/manage-find-my-device.html">Manage Find My Device Requests</a></li>
+                `;
+            } else {
+                linksContainer.innerHTML = `<li>Unknown role. Please contact support.</li>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', displayLinks);
+    </script>
+</head>
+<body>
+    <h1>Welcome to Laptop Service Management</h1>
+    <p id="welcome-message"></p> <!-- Placeholder for the welcome message -->
+    <ul id="links-container">
+        <!-- Links will be dynamically populated here -->
+    </ul>
+</body>
+</html>

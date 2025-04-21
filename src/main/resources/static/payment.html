@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+    
+        h1 {
+            text-align: center;
+            color: #38bdf8;
+            margin-bottom: 40px;
+            text-shadow: 0 0 6px #0ea5e9;
+        }
+    
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+        }
+    
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #93c5fd;
+        }
+    
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #334155;
+            color: #f1f5f9;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+    
+        button[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #0ea5e9;
+            color: #0f172a;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+    
+        button[type="submit"]:hover {
+            background-color: #38bdf8;
+            transform: scale(1.05);
+        }
+    
+        #cardFields,
+        #upiField {
+            display: none;
+        }
+    
+        @media (max-width: 600px) {
+            form {
+                padding: 20px;
+            }
+        }
+    </style>
+    
+    <script>
+        // Function to dynamically show/hide fields based on the selected payment method
+        function togglePaymentFields() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const cardFields = document.getElementById('cardFields');
+            const upiField = document.getElementById('upiField');
+
+            if (paymentMethod === 'CARD') {
+                cardFields.style.display = 'block';
+                upiField.style.display = 'none';
+            } else if (paymentMethod === 'UPI') {
+                cardFields.style.display = 'none';
+                upiField.style.display = 'block';
+            }
+        }
+
+        async function processPayment(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const payButton = event.target.querySelector('button[type="submit"]');
+            payButton.disabled = true; // Disable the button to prevent duplicate submissions
+
+            const laptopId = new URLSearchParams(window.location.search).get('laptopId');
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            // Prepare payment details based on the selected payment method
+            const paymentDetails = {
+                laptopId: laptopId,
+                customerName: document.getElementById('customerName').value,
+                paymentMethod: paymentMethod
+            };
+
+            if (paymentMethod === 'CARD') {
+                paymentDetails.cardNumber = document.getElementById('cardNumber').value;
+                paymentDetails.expiryDate = document.getElementById('expiryDate').value;
+                paymentDetails.cvv = document.getElementById('cvv').value;
+            } else if (paymentMethod === 'UPI') {
+                paymentDetails.upiId = document.getElementById('upiId').value;
+            }
+
+            try {
+                const response = await fetch('/api/payments/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(paymentDetails)
+                });
+
+                if (response.ok) {
+                    const receipt =await response.json();
+                    sessionStorage.setItem('receipt',JSON.stringify(receipt))
+                    alert('Payment successful! Redirecting to receipt...');
+                    window.location.href = `/receipt.html`; // Redirect to receipt page
+                } else {
+                    const error = await response.json();
+                    alert(`Payment failed: ${error.message}`);
+                }
+            } catch (error) {
+                console.error('Error processing payment:', error);
+                alert('Failed to process payment. Please check the console for more details.');
+            } finally {
+                payButton.disabled = false; // Re-enable the button in case of failure
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Payment</h1>
+    <form onsubmit="processPayment(event)">
+        <!-- Payment Method Dropdown -->
+        <label for="paymentMethod">Payment Method:</label>
+        <select id="paymentMethod" name="paymentMethod" onchange="togglePaymentFields()" required>
+            <option value="CARD">Card</option>
+            <option value="UPI">UPI</option>
+        </select>
+        <br><br>
+
+        <!-- Customer Name -->
+        <label for="customerName">Customer Name:</label>
+        <input type="text" id="customerName" name="customerName" value="John Doe" required>
+        <br><br>
+
+        <!-- Card Payment Fields -->
+        <div id="cardFields" style="display: block;">
+            <label for="cardNumber">Card Number:</label>
+            <input type="text" id="cardNumber" name="cardNumber">
+            <br><br>
+
+            <label for="expiryDate">Expiry Date:</label>
+            <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY">
+            <br><br>
+
+            <label for="cvv">CVV:</label>
+            <input type="text" id="cvv" name="cvv">
+            <br><br>
+        </div>
+
+        <!-- UPI Payment Field -->
+        <div id="upiField" style="display: none;">
+            <label for="upiId">UPI ID:</label>
+            <input type="text" id="upiId" name="upiId" placeholder="user@bank">
+            <br><br>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit">Pay</button>
+    </form>
+</body>
+</html>

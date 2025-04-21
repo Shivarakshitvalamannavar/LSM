@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Laptop</title>
+</head>
+<body>
+    <h1>Add a New Laptop</h1>
+    <form action="/api/laptops/add" method="post">
+        <label for="model">Laptop Model:</label>
+        <input type="text" id="model" name="model" required>
+        <br><br>
+
+        <label for="status">Laptop Status:</label>
+        <select id="status" name="status" required>
+            <option value="AVAILABLE">Available</option>
+            <option value="SOLD">Sold</option>
+            <option value="UNDERSERVICE">Under Service</option>
+            <option value="REPORTEDLOST">Reported Lost</option>
+        </select>
+        <br><br>
+
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" name="quantity" min="1" required>
+        <br><br>
+
+        <button type="submit">Add Laptop</button>
+    </form>
+</body>
+</html>
